@@ -7,29 +7,22 @@ using Fusion;
 
 public class GameManager : MonoBehaviour
 {
-    public static Action<GameTeam, PlayerSide> OnRoundFinished;
+    public static GameManager Instance;
+
+    public static Action<PlayerSide> OnRoundFinished;
     public static Action<PlayerSide> OnGameOver;
     public static Action OnStartRound;
 
     [SerializeField] int numberOfRounds = 3;
-    public int currentRound = 1;
+    int CurrentRound = 1;
+    bool isGameOver;
 
-    public static GameManager Instance;
+    List<PlayerSide> winningSide = new List<PlayerSide>();
 
-    List<PlayerSide> winngSides = new List<PlayerSide>();
+    bool isCalledOnce;
     private void OnEnable()
     {
         Networking.OnPlayerLeftGame += OnPlayerLeft;
-    }
-
-    private void OnDisable()
-    {
-        Networking.OnPlayerLeftGame -= OnPlayerLeft;
-
-    }
-    private void OnPlayerLeft(PlayerSide side)
-    {
-        OnGameOver?.Invoke(Utility.GetOppositeSide(side));
     }
 
     private void Awake()
@@ -43,29 +36,74 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
     }
-    public void RoundFinished(GameTeam winnerTeam, PlayerSide winnerSide)
+
+    public int GetCurrentRound()
     {
-        currentRound++;
-        if (currentRound > numberOfRounds || IsStreak())
+        return CurrentRound;
+    }
+
+    private void OnPlayerLeft(PlayerSide side)
+    {
+        if (!isGameOver)
+            OnGameOver?.Invoke(Utility.GetOppositeSide(side));
+    }
+
+
+    public void RoundFinished(PlayerSide winnerSide)
+    {
+        if (isCalledOnce) return;
+        CurrentRound++;
+        winningSide.Add(winnerSide);
+        if (CurrentRound > numberOfRounds || IsStreak())
         {
             GameOver();
         }
         else
         {
-            winngSides.Add(winnerSide);
-            OnRoundFinished?.Invoke(winnerTeam, winnerSide);
+            OnRoundFinished?.Invoke(winnerSide);
         }
+        Invoke(nameof(ResetCall), 1f);
+        isCalledOnce = true;
     }
-
+    void ResetCall()
+    {
+        isCalledOnce = false;
+    }
     public void ResetGame()
     {
-        winngSides.Clear();
-        currentRound = 1;
+        winningSide.Clear();
+        CurrentRound = 1;
+    }
+
+
+
+    PlayerSide GetWinnerSide()
+    {
+        int leftWin = 0;
+        foreach (var win in winningSide)
+        {
+            if (win == PlayerSide.Left)
+                leftWin++;
+        }
+        if (leftWin >= 2)
+            return PlayerSide.Left;
+        else return PlayerSide.Right;
+    }
+
+    bool IsStreak()
+    {
+        if (winningSide.Count > 1)
+            return winningSide[0] == winningSide[1];
+        else return false;
+    }
+    public void StartRound()
+    {
+        OnStartRound?.Invoke();
     }
 
     public void GameOver()
     {
-        ResetGame();
+        isGameOver = true;
         OnGameOver?.Invoke(GetWinnerSide());
 
         if (Utility.side == GetWinnerSide())
@@ -76,40 +114,9 @@ public class GameManager : MonoBehaviour
             FirebaseManager.Instance.SaveData(Utility.teamChoosed, false);
 
     }
-
-    PlayerSide GetWinnerSide()
+    private void OnDisable()
     {
-        int leftWin = 0;
-        foreach (var win in winngSides)
-        {
-            if (win == PlayerSide.Left)
-                leftWin++;
-        }
-        if (leftWin > 1)
-            return PlayerSide.Left;
-        else return PlayerSide.Right;
+        Networking.OnPlayerLeftGame -= OnPlayerLeft;
     }
-
-    bool IsStreak()
-    {
-        if (winngSides.Count < 2)
-            return false;
-        else
-        {
-            PlayerSide firstElem = winngSides[0];
-            for (int i = 1; i < winngSides.Count; i++)
-            {
-                if (winngSides[i] != firstElem)
-                    return false;
-            }
-
-            return true;
-        }
-    }
-    public void StartRound()
-    {
-        OnStartRound?.Invoke();
-    }
-
 
 }

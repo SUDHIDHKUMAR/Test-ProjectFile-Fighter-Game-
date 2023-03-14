@@ -15,14 +15,14 @@ namespace FighterGame.UI
             ChooseTeamScreen.onTeamSelected += LoadingScreen;
             MatchScreen.OnMatchingFinished += GoToGame;
             Networking.OnGettingOpponent += MatchingScreen;
-            Networking.OnDisConnect += GetBackToHomeScreen;
+            Networking.OnDisconnect += GetBackToHomeScreen;
         }
 
         private void OnDisable()
         {
             ChooseTeamScreen.onTeamSelected -= LoadingScreen;
             Networking.OnGettingOpponent -= MatchingScreen;
-            Networking.OnDisConnect -= GetBackToHomeScreen;
+            Networking.OnDisconnect -= GetBackToHomeScreen;
             MatchScreen.OnMatchingFinished -= GoToGame;
         }
         private void Start()

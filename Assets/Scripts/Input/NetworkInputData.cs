@@ -3,8 +3,8 @@ using UnityEngine;
 
 public struct NetworkInputData : INetworkInput
 {
-    public float horDir;
+    public float movement;
     public NetworkBool isAttack01;
     public NetworkBool isAttack02;
-    public NetworkBool defend;
+    public NetworkBool isShielded;
 }

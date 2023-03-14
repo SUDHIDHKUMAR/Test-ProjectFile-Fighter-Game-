@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.6679567, g: 0.6825242, b: 0.68132085, a: 1}
+  m_IndirectSpecularColor: {r: 0.66709, g: 0.68222016, b: 0.6801414, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4287,7 +4287,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfRounds: 3
-  currentRound: 1
 --- !u!1 &1532137154
 GameObject:
   m_ObjectHideFlags: 0
@@ -5655,7 +5654,6 @@ MonoBehaviour:
   teamBlueToggle: {fileID: 103794634}
   chooseButton: {fileID: 1867920204}
   chooseButtonText: {fileID: 549241027}
-  matchmaker: {fileID: 0}
 --- !u!1 &1867920202
 GameObject:
   m_ObjectHideFlags: 0
@@ -5930,9 +5928,6 @@ MonoBehaviour:
   screenIndex: 3
   healthBarLeft: {fileID: 99298537}
   healthBarRight: {fileID: 2017878293}
-  defendTime: 5
-  defendButton: {fileID: 1573298535}
-  defendButtonImage: {fileID: 791391587}
   roundText: {fileID: 640210371}
   popUp: {fileID: 1842966973}
 --- !u!1 &2017878291

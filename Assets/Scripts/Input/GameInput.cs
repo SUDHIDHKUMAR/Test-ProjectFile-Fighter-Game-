@@ -5,32 +5,31 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class GameInput : MonoBehaviour
 {
+
+    private const string MOVEMENT_INPUT = "Horizontal";
+    private const string ATTACK_01 = "Fire1";
+    private const string ATTACK_02 = "Fire2";
+    private const string SHIELD = "Fire3";
+
+
     public float GetHorizondalInput()
     {
-        return CrossPlatformInputManager.GetAxis("Horizontal");
+        return CrossPlatformInputManager.GetAxis(MOVEMENT_INPUT);
     }
 
-    public bool IsAttack01()
+    public bool GetGameButtonDown(string buttonName)
     {
-        return CrossPlatformInputManager.GetButtonDown("Fire1");
-    }
-    public bool IsAttack02()
-    {
-        return CrossPlatformInputManager.GetButtonDown("Fire2");
-    }
-    public bool IsDefend()
-    {
-        return CrossPlatformInputManager.GetButtonDown("Fire3");
+        return CrossPlatformInputManager.GetButtonDown(buttonName);
     }
 
     public NetworkInputData GetAllInputs()
     {
         return new NetworkInputData()
         {
-            defend = IsDefend(),
-            isAttack01 = IsAttack01(),
-            isAttack02 = IsAttack02(),
-            horDir = GetHorizondalInput()
+            isShielded = GetGameButtonDown(SHIELD),
+            isAttack01 = GetGameButtonDown(ATTACK_01),
+            isAttack02 = GetGameButtonDown(ATTACK_02),
+            movement = GetHorizondalInput()
         };
     }
 }

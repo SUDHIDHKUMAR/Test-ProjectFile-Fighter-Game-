@@ -7,9 +7,14 @@ using UnityEngine;
 
 public class FirebaseManager : MonoBehaviour
 {
-    string uID;
-    DatabaseReference dbRef;
     public static FirebaseManager Instance;
+
+    private const string ROOT_USERS = "Players";
+
+    private string uID;
+    private DatabaseReference dbRef;
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,24 +31,23 @@ public class FirebaseManager : MonoBehaviour
     {
         uID = SystemInfo.deviceUniqueIdentifier;
         dbRef = FirebaseDatabase.DefaultInstance.RootReference;
-        SaveData(GameTeam.BLUE_TEAM, true);
     }
-
+    // Save user game data
     public void SaveData(GameTeam team, bool iswinner)
     {
         PlayerData data = new PlayerData(team, iswinner);
         string jsonData = JsonUtility.ToJson(data);
-        dbRef.Child("Players").Child(uID).Child(System.DateTime.Now.ToString()).SetRawJsonValueAsync(jsonData);
+        dbRef.Child(ROOT_USERS).Child(uID).Child(System.DateTime.Now.ToString()).SetRawJsonValueAsync(jsonData);
     }
 }
 
 public class PlayerData
 {
-    public string Team;
+    public string playerTeam;
     public bool isWinner;
     public PlayerData(GameTeam _team, bool _iswinner)
     {
-        Team = _team.ToString();
+        playerTeam = _team.ToString();
         isWinner = _iswinner;
     }
 }

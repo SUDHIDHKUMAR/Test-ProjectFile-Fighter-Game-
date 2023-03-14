@@ -17,21 +17,23 @@ public class Character : NetworkBehaviour
     [SerializeField] Transform attackPoint;
     [SerializeField] float attackRadious = 1f;
 
-    [SerializeField] int attack1Power;
-    [SerializeField] int attack2Power;
 
+    float takeAttacktime = 0f;
+    float attackRate = 1f;
+    bool isShielded;
 
-    float takeAttacktime = 1f;
+    const string ATTACK_ANIMATION_1 = "Attack01";
+    const string ATTACK_ANIMATION_2 = "Attack02";
+    const string SHIELD_ANIMATION = "Defend";
 
 
     [Networked(OnChanged = nameof(OnHPChanged))]
-    byte Health { get; set; }
+    float Health { get; set; }
 
     [Networked(OnChanged = nameof(OnDead))]
     NetworkBool IsDead { get; set; }
 
-  
-    bool defence;
+
 
     private void OnEnable()
     {
@@ -81,26 +83,25 @@ public class Character : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        takeAttacktime -= Runner.DeltaTime;
         if (GetInput(out NetworkInputData data))
         {
-            transform.Translate(5 * new Vector3(0, 0, data.horDir * dir).normalized * Runner.DeltaTime);
             SetAnimations(data);
-            if (takeAttacktime < 0)
+
+            transform.Translate(5 * new Vector3(0, 0, data.movement * dir).normalized * Runner.DeltaTime);
+            if (Time.time >= takeAttacktime)
             {
                 if (data.isAttack01)
-                    Attack(10);
+                    Attack(10f);
                 else if (data.isAttack02)
-                    Attack(20);
-                defence = data.defend;
+                    Attack(20f);
+                isShielded = data.isShielded;
             }
-
         }
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -2.5f, 2.5f), 0, 0);
 
     }
 
-    void Attack(byte power)
+    void Attack(float power)
     {
         Collider[] cols = Physics.OverlapSphere(attackPoint.transform.position, attackRadious);
 
@@ -108,55 +109,63 @@ public class Character : NetworkBehaviour
         {
             Character chara = col.GetComponent<Character>();
             if (chara != this)
-                chara.Damage(power);
+                chara.TakeDamage(power);
         }
-        takeAttacktime = 1;
+        takeAttacktime = Time.time + 2f / attackRate;
     }
-
     void SetAnimations(NetworkInputData data)
     {
         foreach (var anim in characterAnimators)
         {
-            anim.SetBool("Attack01", data.isAttack01);
-            anim.SetBool("Attack02", data.isAttack02);
-            anim.SetBool("Defend", data.defend);
+            anim.SetBool(ATTACK_ANIMATION_1, data.isAttack01);
+            anim.SetBool(ATTACK_ANIMATION_2, data.isAttack02);
+            anim.SetBool(SHIELD_ANIMATION, data.isShielded);
         }
     }
-    void SetAnimations(string animName)
-    {
-        foreach (var anim in characterAnimators)
-        {
-            anim.SetTrigger(animName);
-        }
-    }
+  
     public float GetPlayerHealth()
     {
         return Health;
     }
-    public void Damage(byte damage)
+
+    float takeDamage = 0;
+    public void TakeDamage(float damage)
     {
-        if (!defence)
+        if (!isShielded)
         {
-            Health -= damage;
+            takeDamage = damage;
+            //Health -= damage;
+            Invoke(nameof(Damage), .2f);
         };
     }
+    void Damage()
+    {
+        Health -= takeDamage;
+    }
+
     public void CheckHealth()
     {
+        if (IsDead) return;
         if (Health <= 0)
         {
-            if (!IsDead)
-                Die();
+            Die();
         }
     }
     void Die()
     {
         Debug.LogError("Dead" + team.ToString());
         IsDead = true;
+        //  GameManager.Instance.RoundFinished(Utility.GetOppositeSide(side));
+
     }
     private static void OnDead(Changed<Character> changed)
     {
         if (changed.Behaviour.IsDead)
-            GameManager.Instance.RoundFinished(Utility.GetOppositeTeam(changed.Behaviour.team), Utility.GetOppositeSide(changed.Behaviour.side));
+        {
+            Debug.LogError("Dead" + changed.Behaviour.team.ToString() + changed.Behaviour.side.ToString());
+            GameManager.Instance.RoundFinished(Utility.GetOppositeSide(changed.Behaviour.side));
+
+        }
     }
 
 }

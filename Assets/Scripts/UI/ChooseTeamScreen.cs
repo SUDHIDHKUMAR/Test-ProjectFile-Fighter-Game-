@@ -14,7 +14,6 @@ namespace FighterGame.UI
         [SerializeField] Button chooseButton;
         [SerializeField] TMP_Text chooseButtonText;
 
-        [SerializeField] Networking matchmaker;
         GameTeam playerTeam;
 
         public static Action onTeamSelected;
