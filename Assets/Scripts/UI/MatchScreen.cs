@@ -14,8 +14,8 @@ namespace FighterGame.UI
 
         public override void InitializeScreen()
         {
-            opponent.SetColorAndName(PlayerData.GetOpponentColor(), "Opponent");
-            player.SetColorAndName(PlayerData.GetPlayerColor(), "You");
+            opponent.SetColorAndName(Utility.GetOpponentColor(), "Opponent");
+            player.SetColorAndName(Utility.GetPlayerColor(), "You");
             base.InitializeScreen();
             timer.StartTimer(3f, () => { OnMatchingFinished?.Invoke(); });
         }

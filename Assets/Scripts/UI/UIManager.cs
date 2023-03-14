@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace FighterGame.UI
 {
@@ -12,8 +13,17 @@ namespace FighterGame.UI
         private void OnEnable()
         {
             ChooseTeamScreen.onTeamSelected += LoadingScreen;
-            MatchMaking.OnGettingOpponent += MatchingScreen;
             MatchScreen.OnMatchingFinished += GoToGame;
+            Networking.OnGettingOpponent += MatchingScreen;
+            Networking.OnDisConnect += GetBackToHomeScreen;
+        }
+
+        private void OnDisable()
+        {
+            ChooseTeamScreen.onTeamSelected -= LoadingScreen;
+            Networking.OnGettingOpponent -= MatchingScreen;
+            Networking.OnDisConnect -= GetBackToHomeScreen;
+            MatchScreen.OnMatchingFinished -= GoToGame;
         }
         private void Start()
         {
@@ -43,6 +53,14 @@ namespace FighterGame.UI
             {
                 screens.DeinitializeScreen();
             }
+        }
+
+        public void GetBackToHomeScreen()
+        {
+            Networking.Instance.Disconnect();
+            HideAllScreens();
+            UIScreens[0].InitializeScreen();
+            GameManager.Instance.ResetGame();
         }
     }
 }

@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using TMPro;
+using Fusion;
+
 public class Timer : MonoBehaviour
 {
     [SerializeField] float timeRemaining = 3;

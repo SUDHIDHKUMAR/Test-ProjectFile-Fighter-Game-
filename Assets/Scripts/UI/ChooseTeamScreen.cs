@@ -14,7 +14,7 @@ namespace FighterGame.UI
         [SerializeField] Button chooseButton;
         [SerializeField] TMP_Text chooseButtonText;
 
-        [SerializeField] MatchMaking matchmaker;
+        [SerializeField] Networking matchmaker;
         GameTeam playerTeam;
 
         public static Action onTeamSelected;
@@ -28,7 +28,7 @@ namespace FighterGame.UI
 
         private void OnChoodeButtonClick()
         {
-            PlayerData.teamChoosed = playerTeam;
+            Utility.teamChoosed = playerTeam;
             onTeamSelected?.Invoke();
         }
 
